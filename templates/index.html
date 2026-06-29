@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Chatbot</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f7f7f8;
+        }
+
+        .container {
+            width: 700px;
+            height: 90vh;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .header {
+            background: #10a37f;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #eee;
+        }
+
+        #chatbox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f7f7f8;
+        }
+
+        .user {
+            text-align: right;
+            margin: 10px;
+        }
+
+        .bot {
+            text-align: left;
+            margin: 10px;
+        }
+
+        .bubble {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .user .bubble {
+            background: #10a37f;
+            color: white;
+        }
+
+        .bot .bubble {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">🤖 My AI Chatbot</div>
+
+    <!-- Emotion selector -->
+    <div class="topbar">
+        <label>Mode:</label>
+        <select id="mode">
+            <option value="friendly">Friendly 😊</option>
+            <option value="funny">Funny 😂</option>
+            <option value="realistic">Realistic 🧠</option>
+        </select>
+    </div>
+
+    <div id="chatbox">
+        <div class="bot">
+            <div class="bubble">
+                👋 Hello! Ask me anything.
+            </div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input id="message" type="text" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage() {
+
+    let input = document.getElementById("message");
+    let message = input.value.trim();
+    if(message === "") return;
+
+    let mode = document.getElementById("mode").value;
+
+    let chat = document.getElementById("chatbox");
+
+    chat.innerHTML += `
+        <div class="user">
+            <div class="bubble">${message}</div>
+        </div>
+    `;
+
+    input.value = "";
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            message: message,
+            mode: mode
+        })
+    });
+
+    const data = await response.json();
+
+    chat.innerHTML += `
+        <div class="bot">
+            <div class="bubble">${data.reply}</div>
+        </div>
+    `;
+
+    chat.scrollTop = chat.scrollHeight;
+}
+
+</script>
+
+</body>
+</html>
