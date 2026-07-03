@@ -105,6 +105,10 @@
 
     <!-- Emotion selector -->
     <div class="topbar">
+        <p id="pdfStatus" style="margin:10px;color:green;font-weight:bold;">
+    📄 No PDF uploaded
+</p>
+    <div>
         <label>Mode:</label>
         <select id="mode">
             <option value="friendly">Friendly 😊</option>
@@ -112,6 +116,12 @@
             <option value="realistic">Realistic 🧠</option>
         </select>
     </div>
+
+    <div>
+        <input type="file" id="pdfFile" accept=".pdf">
+        <button onclick="uploadPDF()">Upload PDF</button>
+    </div>
+</div>
 
     <div id="chatbox">
         <div class="bot">
@@ -124,6 +134,7 @@
     <div class="input-area">
         <input id="message" type="text" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
         <button onclick="sendMessage()">Send</button>
+        <button onclick="clearChat()">Clear Chat</button>
     </div>
 
 </div>
@@ -147,6 +158,11 @@ async function sendMessage() {
     `;
 
     input.value = "";
+    chat.innerHTML += `
+    <div class="bot" id="thinking">
+        <div class="bubble">🤖 Thinking...</div>
+    </div>
+`;
 
     const response = await fetch("/chat", {
         method: "POST",
@@ -158,15 +174,55 @@ async function sendMessage() {
     });
 
     const data = await response.json();
+    document.getElementById("thinking").remove();
 
     chat.innerHTML += `
-        <div class="bot">
-            <div class="bubble">${data.reply}</div>
+    <div class="bot">
+        <div class="bubble">
+            ${data.reply}
+            <br><br>
+            <small>📄 Source: ${data.source}</small>
         </div>
-    `;
+    </div>
+`;
 
     chat.scrollTop = chat.scrollHeight;
+    }
+    async function uploadPDF() {
+
+    const fileInput = document.getElementById("pdfFile");
+
+    if (fileInput.files.length === 0) {
+        alert("Please select a PDF file.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("pdf", fileInput.files[0]);
+
+    const response = await fetch("/upload_pdf", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    document.getElementById("pdfStatus").innerHTML =
+    "✅ Uploaded PDF: " + fileInput.files[0].name;
+
+alert(data.message);
 }
+function clearChat() {
+
+    document.getElementById("chatbox").innerHTML = `
+        <div class="bot">
+            <div class="bubble">
+                👋 Hello! Ask me anything.
+            </div>
+        </div>
+    `;
+}
+
 
 </script>
 
