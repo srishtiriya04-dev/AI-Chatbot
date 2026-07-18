@@ -132,10 +132,12 @@
     </div>
 
     <div class="input-area">
-        <input id="message" type="text" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
-        <button onclick="sendMessage()">Send</button>
-        <button onclick="clearChat()">Clear Chat</button>
-    </div>
+    <input id="message" type="text" placeholder="Type message..." onkeypress="if(event.key==='Enter') sendMessage()">
+
+    <button onclick="startVoice()">🎤</button>
+
+    <button onclick="sendMessage()">Send</button>
+</div>
 
 </div>
 
@@ -185,6 +187,10 @@ async function sendMessage() {
         </div>
     </div>
 `;
+// Speak the bot's reply
+const speech = new SpeechSynthesisUtterance(data.reply);
+speech.lang = "en-US";
+window.speechSynthesis.speak(speech);
 
     chat.scrollTop = chat.scrollHeight;
     }
@@ -221,6 +227,27 @@ function clearChat() {
             </div>
         </div>
     `;
+}
+function startVoice() {
+
+    const recognition = new webkitSpeechRecognition();
+
+    recognition.lang = "en-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        document.getElementById("message").value =
+            event.results[0][0].transcript;
+
+        sendMessage();
+    };
+
+    recognition.onerror = function(event) {
+        alert("Voice Error: " + event.error);
+    };
 }
 
 

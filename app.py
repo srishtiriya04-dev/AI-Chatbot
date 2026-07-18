@@ -101,11 +101,12 @@ def chat():
         query_embeddings=[query_embedding],
         n_results=3
     )
+
     page_number = "Unknown"
+    context = ""
 
     if results["metadatas"] and len(results["metadatas"][0]) > 0:
         page_number = results["metadatas"][0][0]["page"]
-    context = ""
 
     if results["documents"] and len(results["documents"][0]) > 0:
         context = "\n\n".join(results["documents"][0])
@@ -159,10 +160,12 @@ Answer:
     })
 
     return jsonify({
-    "reply": bot_reply,
-    "source": "Uploaded PDF",
-    "page": page_number,
-    "chat_history": chat_history
-})
+        "reply": bot_reply,
+        "source": "Uploaded PDF",
+        "page": page_number,
+        "chat_history": chat_history
+    })
 if __name__ == "__main__":
     app.run(debug=True)
+
+       
